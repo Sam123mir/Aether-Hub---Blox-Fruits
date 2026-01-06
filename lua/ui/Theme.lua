@@ -34,7 +34,7 @@ Theme.Icons = {
     
     -- [[ USER LOGO HERE ]]
     -- Replace this ID with the Asset ID of your uploaded Bear Image
-    Logo = "rbxassetid://15923623972" -- Placeholder (Use your ID)
+    Logo = "rbxassetid://110086558997856" -- Placeholder (Use your ID)
 }
 
 Theme.CornerRadius = UDim.new(0, 6) -- Fluent standard
