@@ -30,7 +30,11 @@ Theme.Icons = {
     Combat = "rbxassetid://6031090994", -- Sword
     Stats = "rbxassetid://6031248455",  -- Chart
     Settings = "rbxassetid://6031210120",
-    User = "rbxassetid://6031024345"
+    User = "rbxassetid://6031024345",
+    
+    -- [[ USER LOGO HERE ]]
+    -- Replace this ID with the Asset ID of your uploaded Bear Image
+    Logo = "rbxassetid://15923623972" -- Placeholder (Use your ID)
 }
 
 Theme.CornerRadius = UDim.new(0, 6) -- Fluent standard
