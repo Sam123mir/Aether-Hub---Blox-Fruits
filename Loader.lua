@@ -18,6 +18,7 @@ local Files = {
     "lua/ui/Theme.lua",
     "lua/ui/UIManager.lua",
     "lua/ui/Window.lua",
+    "lua/ui/Section.lua", -- Added Section.lua
     "lua/ui/Tab.lua",
     "lua/ui/Button.lua",
     "lua/ui/Toggle.lua",

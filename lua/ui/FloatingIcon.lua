@@ -10,101 +10,62 @@ FloatingIcon.MainWindow = nil
 function FloatingIcon:Init(gui, mainWindow)
     self.MainWindow = mainWindow
     
-    local btn = Instance.new("ImageButton")
-    btn.Name = "FloatingIcon"
-    btn.Size = UDim2.new(0, 50, 0, 50)
-    btn.Position = UDim2.new(0, 50, 0.5, 0)
-    btn.BackgroundColor3 = Theme.Colors.MainBackground
-    btn.Image = "" -- TODO: Agregar ID de logo si el usuario lo provee
-    btn.Visible = false
+    local icon = Instance.new("ImageButton")
+    icon.Name = "AetherIcon"
+    icon.Size = UDim2.new(0, 60, 0, 60)
+    icon.Position = UDim2.new(0, 50, 0.9, -60)
+    icon.BackgroundColor3 = Theme.Colors.Main
+    icon.Image = Theme.Icons.Logo -- Logo Nano Banana
+    icon.Visible = false -- Hidden initially
+    icon.Parent = gui
     
-    local uic = Instance.new("UICorner", btn)
-    uic.CornerRadius = UDim.new(1, 0) -- Circle
+    local corner = Instance.new("UICorner", icon)
+    corner.CornerRadius = UDim.new(1, 0)
     
-    local stroke = Instance.new("UIStroke", btn)
-    stroke.Color = Theme.Colors.Accent
+    local stroke = Instance.new("UIStroke", icon)
     stroke.Thickness = 2
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Color = Theme.Colors.Accent
     
-    -- Icon Text (A) as placeholder
-    local label = Instance.new("TextLabel")
-    label.Text = "A"
-    label.Font = Theme.Fonts.Bold
-    label.TextSize = 32
-    label.TextColor3 = Theme.Colors.Accent
-    label.Size = UDim2.new(1,0,1,0)
-    label.BackgroundTransparency = 1
-    label.Parent = btn
-    
-    -- Parenting
-    btn.Parent = gui
-    self.Instance = btn
-    
-    -- Drag Logic
+    -- Dragging
     local dragging, dragStart, startPos
-    
-    btn.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    icon.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
-            dragStart = input.Position
-            startPos = btn.Position
+            dragStart = inp.Position
+            startPos = icon.Position
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+            local delta = inp.Position - dragStart
+            icon.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    icon.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+    
+    -- Click to Open
+    icon.MouseButton1Click:Connect(function()
+        if not dragging then
+            self:Restore()
         end
     end)
     
-    btn.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then 
-            dragging = false 
-            -- Click detection (if not dragged far)
-            if self.Instance.Visible then
-                self:Restore()
-            end
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
-            btn.Position = UDim2.new(
-                startPos.X.Scale, startPos.X.Offset + delta.X,
-                startPos.Y.Scale, startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
-    
-    -- Pulse Animation
-    self:StartPulse()
-end
-
-function FloatingIcon:StartPulse()
-    task.spawn(function()
-        while self.Instance do
-            if self.Instance.Visible then
-                local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-                local tween = TweenService:Create(self.Instance.UIStroke, tweenInfo, {Thickness = 4, Transparency = 0.5})
-                tween:Play()
-                return -- Run once for loop
-            end
-            task.wait(1)
-        end
-    end)
+    self.Instance = icon
 end
 
 function FloatingIcon:Show()
     if self.Instance then
         self.Instance.Visible = true
-        self.Instance.Size = UDim2.new(0, 0, 0, 0)
-        Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 50, 0, 50)}, 0.5, Enum.EasingStyle.Elastic)
+        Utilities.CreateTween(self.Instance, {ImageTransparency = 0}, 0.3)
     end
 end
 
 function FloatingIcon:Restore()
-    if self.Instance then
-        Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 0, 0, 0)}, 0.3).Completed:Connect(function()
-            self.Instance.Visible = false
-            if self.MainWindow then
-                self.MainWindow:Restore()
-            end
-        end)
+    if self.Instance and self.MainWindow then
+        self.Instance.Visible = false
+        self.MainWindow:Restore()
     end
 end
 

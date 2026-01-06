@@ -5,98 +5,94 @@ local Auth = AetherRequire("lua.core.Auth")
 
 local UIManager = {}
 UIManager.Gui = nil
-UIManager.Engine = nil
 
 function UIManager:Init(engine)
-    self.Engine = engine
-    print("[Aether UI]: Inicializando interfaz Matrix Green...")
+    if self.Gui then self.Gui:Destroy() end
     
-    -- Create ScreenGui
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "AetherScripts_UI"
-    gui.ResetOnSpawn = false
+    self.Gui = Instance.new("ScreenGui")
+    self.Gui.Name = "AetherScripts_V3"
+    self.Gui.ResetOnSpawn = false
     
-    -- Protect GUI if possible (Synapse/KRNL)
-    if syn and syn.protect_gui then
-        syn.protect_gui(gui)
-        gui.Parent = CoreGui
+    -- Protect GUI (if supported)
+    if syn and syn.protect_gui then 
+        syn.protect_gui(self.Gui)
+        self.Gui.Parent = CoreGui
     elseif gethui then
-        gui.Parent = gethui()
+        self.Gui.Parent = gethui()
     else
-        gui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+        self.Gui.Parent = CoreGui
     end
     
-    self.Gui = gui
+    self:ShowKeyWindow(function()
+        self:ShowMainWindow()
+    end)
 end
 
 function UIManager:ShowKeyWindow(onSuccessCallback)
     local KeyWindow = AetherRequire("lua.ui.KeyWindow")
     KeyWindow:Create(self.Gui, function()
-        -- On Verify Success
         print("[Aether UI]: Key verificada. Bienvenido.")
         if onSuccessCallback then onSuccessCallback() end
     end)
 end
 
 function UIManager:ShowMainWindow()
-    print("[Aether UI]: Abriendo Panel Principal...")
+    print("[Aether UI]: Abriendo Panel Principal V3...")
     local Window = AetherRequire("lua.ui.Window")
     local TabSystem = AetherRequire("lua.ui.Tab")
+    local Section = AetherRequire("lua.ui.Section")
     
     local mainWin = Window.new("Aether Scripts")
     local tabs = TabSystem.new(mainWin)
     
     -- Create Tabs
-    local mainTab = tabs:AddTab("Main")
     local combatTab = tabs:AddTab("Combat")
     local statsTab = tabs:AddTab("Stats")
+    local miscTab = tabs:AddTab("Misc") -- Was "Settings", renamed for better fit
     local settingsTab = tabs:AddTab("Settings")
-    
-    -- Main Tab Content
+
+    -- [[ COMBAT TAB ]]
     local Toggle = AetherRequire("lua.ui.Toggle")
+    local Button = AetherRequire("lua.ui.Button")
+    local Dropdown = AetherRequire("lua.ui.Dropdown")
     local AutoFarm = AetherRequire("lua.modules.AutoFarm")
+    local AutoLevel = AetherRequire("lua.modules.AutoLevel")
     
-    local farmToggle = Toggle.Create(mainTab, {
+    -- Section: Farming
+    local farmSection = Section.Create(combatTab, "Auto Farm")
+    
+    Toggle.Create(farmSection, {
         Text = "Auto Farm Fruit",
         Default = false,
         Callback = function(state)
             AutoFarm:Toggle(state)
         end
     })
-    farmToggle.Position = UDim2.new(0, 0, 0, 10)
     
-    -- Status Label for Farm
-    local status = Instance.new("TextLabel")
-    status.Text = "Status: Idle"
-    status.Size = UDim2.new(1, 0, 0, 20)
-    status.Position = UDim2.new(0, 5, 0, 60)
-    status.BackgroundTransparency = 1
-    status.TextColor3 = Theme.Colors.TextMid
-    status.Font = Theme.Fonts.Mono
-    status.TextXAlignment = Enum.TextXAlignment.Left
-    status.Parent = mainTab
-
-    -- [[ COMBAT TAB CONTENT ]]
-    local AutoLevel = AetherRequire("lua.modules.AutoLevel")
-    local Dropdown = AetherRequire("lua.ui.Dropdown")
+    -- Section: Leveling
+    local levelSection = Section.Create(combatTab, "Level / Combat")
     
-    -- Mob Selector
+    Toggle.Create(levelSection, {
+        Text = "Auto Level (Nearest)",
+        Default = false,
+        Callback = function(state)
+            AutoLevel:Toggle(state)
+        end
+    })
+    
+    -- Mob Selector in Level Section
     local mobOptions = {"Bandit", "Monkey", "Gorilla", "Pirate", "Marine"}
-    local mobDropdownFrame, updateMobs = Dropdown.Create(combatTab, {
+    local mobDropdown, updateMobs = Dropdown.Create(levelSection, {
         Options = mobOptions,
         Default = "Select Mob...",
         Callback = function(selected)
             AutoLevel:SetTarget(selected)
         end
     })
-    mobDropdownFrame.Position = UDim2.new(0, 0, 0, 10)
     
-    -- Refresh Mobs Button
-    local Button = AetherRequire("lua.ui.Button")
-    Button.Create(combatTab, {
+    Button.Create(levelSection, {
         Text = "Refresh Mobs",
-        Size = UDim2.new(0.4, 0, 0, 30),
-        Position = UDim2.new(0.55, 0, 0, 15),
+        Size = UDim2.new(0.6, 0, 0, 30),
         Variant = "Panel",
         Callback = function()
             local found = {}
@@ -115,43 +111,35 @@ function UIManager:ShowMainWindow()
         end
     })
 
-    -- Auto Level Toggle
-    local levelToggle = Toggle.Create(combatTab, {
-        Text = "Auto Farm Level",
-        Default = false,
-        Callback = function(state)
-            AutoLevel:Toggle(state)
-        end
-    })
-    levelToggle.Position = UDim2.new(0, 0, 0, 60)
-    
-    -- [[ STATS TAB CONTENT ]]
+    -- [[ STATS TAB ]]
     local Stats = AetherRequire("lua.modules.Stats")
     
+    local statsSection = Section.Create(statsTab, "Auto Stats")
+    
     local statOptions = {"Melee", "Defense", "Sword", "Gun", "Devil Fruit"}
-    local statDropdown, _ = Dropdown.Create(statsTab, {
+    Dropdown.Create(statsSection, {
         Options = statOptions,
         Default = "Melee",
         Callback = function(opt)
             Stats:SetTarget(opt)
         end
     })
-    statDropdown.Position = UDim2.new(0, 0, 0, 10)
     
-    local statsToggle = Toggle.Create(statsTab, {
+    Toggle.Create(statsSection, {
         Text = "Auto Add Points",
         Default = false,
         Callback = function(state)
             Stats:Toggle(state)
         end
     })
-    statsToggle.Position = UDim2.new(0, 0, 0, 60)
 
-    -- [[ SETTINGS TAB CONTENT ]]
+    -- [[ MISC TAB ]] (Player Mods)
     local Slider = AetherRequire("lua.ui.Slider")
     local Utilities = AetherRequire("lua.Utilities")
     
-    local speedSlider = Slider.Create(settingsTab, {
+    local playerSection = Section.Create(miscTab, "Local Player")
+    
+    Slider.Create(playerSection, {
         Text = "Walk Speed",
         Min = 16,
         Max = 200,
@@ -163,9 +151,8 @@ function UIManager:ShowMainWindow()
             end
         end
     })
-    speedSlider.Position = UDim2.new(0, 0, 0, 10)
     
-    local jumpSlider = Slider.Create(settingsTab, {
+    Slider.Create(playerSection, {
         Text = "Jump Power",
         Min = 50,
         Max = 500,
@@ -177,25 +164,24 @@ function UIManager:ShowMainWindow()
             end
         end
     })
-    jumpSlider.Position = UDim2.new(0, 0, 0, 70)
+
+    -- [[ SETTINGS TAB ]]
+    local settingsSection = Section.Create(settingsTab, "Calculations")
     
-    local unloadBtn = Button.Create(settingsTab, {
+    Button.Create(settingsSection, {
         Text = "Unload Script",
-        Size = UDim2.new(0.5, 0, 0, 35),
-        Position = UDim2.new(0, 0, 0.9, -10),
-        Variant = "Panel",
+        Variant = "AccentButton",
         Callback = function()
             self.Gui:Destroy()
-            -- Cleanup loops
-            AetherRequire("lua.modules.AutoFarm"):Toggle(false)
-            AetherRequire("lua.modules.AutoLevel"):Toggle(false)
-            AetherRequire("lua.modules.Stats"):Toggle(false)
+            -- Cleanup
+            AutoFarm:Toggle(false)
+            AutoLevel:Toggle(false)
+            Stats:Toggle(false)
         end
     })
     
     mainWin:Show()
     
-    -- Setup Floating Icon listener
     local FloatingIcon = AetherRequire("lua.ui.FloatingIcon")
     FloatingIcon:Init(self.Gui, mainWin)
 end
