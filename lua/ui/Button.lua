@@ -47,7 +47,7 @@ function Button.Create(parent, props)
         corner.CornerRadius = UDim.new(1, 0)
         ripple.Parent = btn
         
-        Utilities.CreateTween(ripple, {Size = UDim2.new(1.5, 0, 1.5, 0), BackgroundTransparency = 1}, 0.4):Completed:Connect(function()
+        Utilities.CreateTween(ripple, {Size = UDim2.new(1.5, 0, 1.5, 0), BackgroundTransparency = 1}, 0.4).Completed:Connect(function()
             ripple:Destroy()
         end)
         

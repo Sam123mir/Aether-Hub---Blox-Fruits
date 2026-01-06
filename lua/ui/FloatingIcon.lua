@@ -99,7 +99,7 @@ end
 
 function FloatingIcon:Restore()
     if self.Instance then
-        Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 0, 0, 0)}, 0.3):Completed:Connect(function()
+        Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 0, 0, 0)}, 0.3).Completed:Connect(function()
             self.Instance.Visible = false
             if self.MainWindow then
                 self.MainWindow:Restore()

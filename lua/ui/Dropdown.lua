@@ -65,7 +65,7 @@ function Dropdown.Create(parent, props)
             Utilities.CreateTween(list, {Size = UDim2.new(1, 0, 0, 150)}, 0.2)
             Utilities.CreateTween(arrow, {Rotation = 180}, 0.2)
         else
-            Utilities.CreateTween(list, {Size = UDim2.new(1, 0, 0, 0)}, 0.2):Completed:Connect(function()
+            Utilities.CreateTween(list, {Size = UDim2.new(1, 0, 0, 0)}, 0.2).Completed:Connect(function()
                 list.Visible = false
             end)
             Utilities.CreateTween(arrow, {Rotation = 0}, 0.2)

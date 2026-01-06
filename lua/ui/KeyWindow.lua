@@ -61,7 +61,7 @@ function KeyWindow:Create(gui, onVerify)
                 status.Text = "Success!"
                 status.TextColor3 = Theme.Colors.Success
                 wait(0.5)
-                Utilities.CreateTween(frame, {BackgroundTransparency = 1}, 0.5):Completed:Connect(function()
+                Utilities.CreateTween(frame, {BackgroundTransparency = 1}, 0.5).Completed:Connect(function()
                     frame:Destroy()
                     onVerify()
                 end)

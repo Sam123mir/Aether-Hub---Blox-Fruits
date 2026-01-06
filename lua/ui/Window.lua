@@ -109,7 +109,7 @@ end
 
 function Window:Minimize()
     local FloatingIcon = AetherRequire("lua.ui.FloatingIcon")
-    Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 550, 0, 0)}, 0.3):Completed:Connect(function()
+    Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 550, 0, 0)}, 0.3).Completed:Connect(function()
         self.Instance.Visible = false
         FloatingIcon:Show()
     end)
