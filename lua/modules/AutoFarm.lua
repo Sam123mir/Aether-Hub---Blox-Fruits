@@ -1,5 +1,5 @@
-local Utilities = require(script.Parent.Parent.Utilities)
-local Configuration = require(script.Parent.Parent.Configuration)
+local Utilities = AetherRequire("lua.Utilities")
+local Configuration = AetherRequire("lua.Configuration")
 local RunService = game:GetService("RunService")
 
 local AutoFarm = {}

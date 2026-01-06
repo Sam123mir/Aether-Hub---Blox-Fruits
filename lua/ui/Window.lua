@@ -1,8 +1,8 @@
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
-local Theme = require(script.Parent.Theme)
-local Utilities = require(script.Parent.Parent.Utilities)
+local Theme = AetherRequire("lua.ui.Theme")
+local Utilities = AetherRequire("lua.Utilities")
 
 local Window = {}
 Window.__index = Window
@@ -10,7 +10,7 @@ Window.__index = Window
 function Window.new(title)
     local self = setmetatable({}, Window)
     
-    local gui = require(script.Parent.UIManager).Gui
+    local gui = AetherRequire("lua.ui.UIManager").Gui
     
     -- Main Frame
     local frame = Instance.new("Frame")
@@ -108,7 +108,7 @@ function Window:Show()
 end
 
 function Window:Minimize()
-    local FloatingIcon = require(script.Parent.FloatingIcon)
+    local FloatingIcon = AetherRequire("lua.ui.FloatingIcon")
     Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 550, 0, 0)}, 0.3):Completed:Connect(function()
         self.Instance.Visible = false
         FloatingIcon:Show()

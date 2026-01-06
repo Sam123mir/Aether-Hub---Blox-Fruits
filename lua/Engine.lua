@@ -1,6 +1,6 @@
-local Configuration = require(script.Parent.Configuration)
-local Utilities = require(script.Parent.Utilities)
-local Workspace = require(script.Parent.Workspace)
+local Configuration = AetherRequire("lua.Configuration")
+local Utilities = AetherRequire("lua.Utilities")
+local Workspace = AetherRequire("lua.Workspace")
 -- UI Manager will be required later to avoid cyclic dependencies if possible, or lazily
 
 local Engine = {}
@@ -29,7 +29,7 @@ end
 
 function Engine:InitializeUI()
     -- Lazy load UIManager
-    local UIManager = require(script.Parent.ui.UIManager)
+    local UIManager = AetherRequire("lua.ui.UIManager")
     UIManager:Init(self)
     
     -- Show Key Window first

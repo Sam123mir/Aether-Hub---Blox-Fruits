@@ -1,4 +1,4 @@
-local AutoLevel = require(script.Parent.AutoLevel)
+local AutoLevel = AetherRequire("lua.modules.AutoLevel")
 -- AutoMastery basically uses AutoLevel logic but ensures we are using a specific weapon tool
 -- and maybe targets lower level mobs for fast kills?
 

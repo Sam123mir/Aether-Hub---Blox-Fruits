@@ -1,5 +1,5 @@
 local UserInputService = game:GetService("UserInputService")
-local Theme = require(script.Parent.Theme)
+local Theme = AetherRequire("lua.ui.Theme")
 
 local Slider = {}
 

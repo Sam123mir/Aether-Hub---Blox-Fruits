@@ -1,4 +1,4 @@
-local Configuration = require(script.Parent.Parent.Configuration)
+local Configuration = AetherRequire("lua.Configuration")
 local Theme = {}
 
 Theme.Colors = Configuration.Theme.Colors

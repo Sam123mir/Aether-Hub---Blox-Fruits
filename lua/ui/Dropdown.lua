@@ -1,6 +1,6 @@
-local Theme = require(script.Parent.Theme)
-local Utilities = require(script.Parent.Parent.Utilities)
-local Button = require(script.Parent.Button)
+local Theme = AetherRequire("lua.ui.Theme")
+local Utilities = AetherRequire("lua.Utilities")
+local Button = AetherRequire("lua.ui.Button")
 
 local Dropdown = {}
 

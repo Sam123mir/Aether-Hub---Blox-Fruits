@@ -1,7 +1,7 @@
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
-local Theme = require(script.Parent.Theme)
-local Auth = require(script.Parent.Parent.core.Auth)
+local Theme = AetherRequire("lua.ui.Theme")
+local Auth = AetherRequire("lua.core.Auth")
 
 local UIManager = {}
 UIManager.Gui = nil
@@ -30,7 +30,7 @@ function UIManager:Init(engine)
 end
 
 function UIManager:ShowKeyWindow(onSuccessCallback)
-    local KeyWindow = require(script.Parent.KeyWindow)
+    local KeyWindow = AetherRequire("lua.ui.KeyWindow")
     KeyWindow:Create(self.Gui, function()
         -- On Verify Success
         print("[Aether UI]: Key verificada. Bienvenido.")
@@ -40,8 +40,8 @@ end
 
 function UIManager:ShowMainWindow()
     print("[Aether UI]: Abriendo Panel Principal...")
-    local Window = require(script.Parent.Window)
-    local TabSystem = require(script.Parent.Tab)
+    local Window = AetherRequire("lua.ui.Window")
+    local TabSystem = AetherRequire("lua.ui.Tab")
     
     local mainWin = Window.new("Aether Scripts")
     local tabs = TabSystem.new(mainWin)
@@ -53,8 +53,8 @@ function UIManager:ShowMainWindow()
     local settingsTab = tabs:AddTab("Settings")
     
     -- Main Tab Content
-    local Toggle = require(script.Parent.Toggle)
-    local AutoFarm = require(script.Parent.Parent.modules.AutoFarm)
+    local Toggle = AetherRequire("lua.ui.Toggle")
+    local AutoFarm = AetherRequire("lua.modules.AutoFarm")
     
     local farmToggle = Toggle.Create(mainTab, {
         Text = "Auto Farm Fruit",
@@ -77,8 +77,8 @@ function UIManager:ShowMainWindow()
     status.Parent = mainTab
 
     -- [[ COMBAT TAB CONTENT ]]
-    local AutoLevel = require(script.Parent.Parent.modules.AutoLevel)
-    local Dropdown = require(script.Parent.Dropdown)
+    local AutoLevel = AetherRequire("lua.modules.AutoLevel")
+    local Dropdown = AetherRequire("lua.ui.Dropdown")
     
     -- Mob Selector
     local mobOptions = {"Bandit", "Monkey", "Gorilla", "Pirate", "Marine"}
@@ -92,7 +92,7 @@ function UIManager:ShowMainWindow()
     mobDropdownFrame.Position = UDim2.new(0, 0, 0, 10)
     
     -- Refresh Mobs Button
-    local Button = require(script.Parent.Button)
+    local Button = AetherRequire("lua.ui.Button")
     Button.Create(combatTab, {
         Text = "Refresh Mobs",
         Size = UDim2.new(0.4, 0, 0, 30),
@@ -126,7 +126,7 @@ function UIManager:ShowMainWindow()
     levelToggle.Position = UDim2.new(0, 0, 0, 60)
     
     -- [[ STATS TAB CONTENT ]]
-    local Stats = require(script.Parent.Parent.modules.Stats)
+    local Stats = AetherRequire("lua.modules.Stats")
     
     local statOptions = {"Melee", "Defense", "Sword", "Gun", "Devil Fruit"}
     local statDropdown, _ = Dropdown.Create(statsTab, {
@@ -148,8 +148,8 @@ function UIManager:ShowMainWindow()
     statsToggle.Position = UDim2.new(0, 0, 0, 60)
 
     -- [[ SETTINGS TAB CONTENT ]]
-    local Slider = require(script.Parent.Slider)
-    local Utilities = require(script.Parent.Parent.Utilities)
+    local Slider = AetherRequire("lua.ui.Slider")
+    local Utilities = AetherRequire("lua.Utilities")
     
     local speedSlider = Slider.Create(settingsTab, {
         Text = "Walk Speed",
@@ -187,16 +187,16 @@ function UIManager:ShowMainWindow()
         Callback = function()
             self.Gui:Destroy()
             -- Cleanup loops
-            require(script.Parent.Parent.modules.AutoFarm):Toggle(false)
-            require(script.Parent.Parent.modules.AutoLevel):Toggle(false)
-            require(script.Parent.Parent.modules.Stats):Toggle(false)
+            AetherRequire("lua.modules.AutoFarm"):Toggle(false)
+            AetherRequire("lua.modules.AutoLevel"):Toggle(false)
+            AetherRequire("lua.modules.Stats"):Toggle(false)
         end
     })
     
     mainWin:Show()
     
     -- Setup Floating Icon listener
-    local FloatingIcon = require(script.Parent.FloatingIcon)
+    local FloatingIcon = AetherRequire("lua.ui.FloatingIcon")
     FloatingIcon:Init(self.Gui, mainWin)
 end
 

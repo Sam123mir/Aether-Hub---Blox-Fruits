@@ -1,5 +1,5 @@
-local Theme = require(script.Parent.Theme)
-local Utilities = require(script.Parent.Parent.Utilities)
+local Theme = AetherRequire("lua.ui.Theme")
+local Utilities = AetherRequire("lua.Utilities")
 
 local Button = {}
 

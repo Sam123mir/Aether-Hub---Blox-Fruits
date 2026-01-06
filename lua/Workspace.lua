@@ -1,5 +1,5 @@
-local Configuration = require(script.Parent.Configuration)
-local Utilities = require(script.Parent.Utilities)
+local Configuration = AetherRequire("lua.Configuration")
+local Utilities = AetherRequire("lua.Utilities")
 local Players = game:GetService("Players")
 
 local Workspace = {}

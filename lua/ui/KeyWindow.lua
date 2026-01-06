@@ -1,7 +1,7 @@
-local Theme = require(script.Parent.Theme)
-local Button = require(script.Parent.Button)
-local Auth = require(script.Parent.Parent.core.Auth)
-local Utilities = require(script.Parent.Parent.Utilities)
+local Theme = AetherRequire("lua.ui.Theme")
+local Button = AetherRequire("lua.ui.Button")
+local Auth = AetherRequire("lua.core.Auth")
+local Utilities = AetherRequire("lua.Utilities")
 
 local KeyWindow = {}
 

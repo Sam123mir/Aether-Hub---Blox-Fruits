@@ -1,7 +1,7 @@
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local Theme = require(script.Parent.Theme)
-local Utilities = require(script.Parent.Parent.Utilities)
+local Theme = AetherRequire("lua.ui.Theme")
+local Utilities = AetherRequire("lua.Utilities")
 
 local FloatingIcon = {}
 FloatingIcon.Instance = nil

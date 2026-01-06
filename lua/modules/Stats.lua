@@ -1,4 +1,4 @@
-local Utilities = require(script.Parent.Parent.Utilities)
+local Utilities = AetherRequire("lua.Utilities")
 local RunService = game:GetService("RunService")
 
 local Stats = {}
