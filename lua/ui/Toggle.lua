@@ -4,86 +4,84 @@ local Utilities = AetherRequire("lua.Utilities")
 local Toggle = {}
 
 function Toggle.Create(parent, props)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, 0, 0, 40)
-    frame.BackgroundTransparency = 1
-    frame.Parent = parent
+    local container = Instance.new("TextButton")
+    container.Name = props.Text .. "_Toggle"
+    container.Text = ""
+    container.AutoButtonColor = false
+    container.Size = UDim2.new(0.95, 0, 0, 42) -- Taller
+    container.BackgroundColor3 = Theme.Colors.Main
+    container.Parent = parent
     
+    local corner = Instance.new("UICorner", container)
+    corner.CornerRadius = UDim.new(0, 6)
+    
+    local stroke = Instance.new("UIStroke", container)
+    stroke.Thickness = 1
+    stroke.Color = Theme.Colors.AccentDim
+    stroke.Transparency = 0.5
+
     -- Label
     local label = Instance.new("TextLabel")
-    label.Text = props.Text or "Feature Toggle"
+    label.Text = props.Text
+    label.Font = Theme.Fonts.Regular
+    label.TextSize = 14
+    label.TextColor3 = Theme.Colors.TextHigh
     label.Size = UDim2.new(0.7, 0, 1, 0)
-    label.Position = UDim2.new(0, 10, 0, 0)
+    label.Position = UDim2.new(0, 15, 0, 0)
+    label.BackgroundTransparency = 1
     label.TextXAlignment = Enum.TextXAlignment.Left
-    Theme.ApplyStyle(label, "Text")
-    label.Parent = frame
+    label.Parent = container
     
-    -- Switch Container
-    local switch = Instance.new("TextButton")
-    switch.Text = ""
-    switch.Size = UDim2.new(0, 50, 0, 26)
-    switch.Position = UDim2.new(1, -60, 0.5, -13)
-    switch.BackgroundColor3 = Theme.Colors.PanelBackground
-    switch.AutoButtonColor = false
+    -- Switch Background
+    local switchBg = Instance.new("Frame")
+    switchBg.Size = UDim2.new(0, 44, 0, 22)
+    switchBg.AnchorPoint = Vector2.new(1, 0.5)
+    switchBg.Position = UDim2.new(1, -15, 0.5, 0)
+    switchBg.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    switchBg.Parent = container
     
-    local uic = Instance.new("UICorner", switch)
-    uic.CornerRadius = UDim.new(1, 0)
+    local switchCorner = Instance.new("UICorner", switchBg)
+    switchCorner.CornerRadius = UDim.new(1, 0)
     
-    local stroke = Instance.new("UIStroke", switch)
-    stroke.Color = Theme.Colors.TextLow
-    stroke.Thickness = 1
+    -- Switch Circle
+    local circle = Instance.new("Frame")
+    circle.Size = UDim2.new(0, 18, 0, 18)
+    circle.AnchorPoint = Vector2.new(0, 0.5)
+    circle.Position = UDim2.new(0, 2, 0.5, 0) -- Off Position
+    circle.BackgroundColor3 = Theme.Colors.TextMid
+    circle.Parent = switchBg
     
-    switch.Parent = frame
-    
-    -- Knob
-    local knob = Instance.new("Frame")
-    knob.Size = UDim2.new(0, 20, 0, 20)
-    knob.Position = UDim2.new(0, 3, 0.5, -10)
-    knob.BackgroundColor3 = Theme.Colors.TextLow
-    
-    local knobCorner = Instance.new("UICorner", knob)
-    knobCorner.CornerRadius = UDim.new(1, 0)
-    
-    knob.Parent = switch
+    local circleCorner = Instance.new("UICorner", circle)
+    circleCorner.CornerRadius = UDim.new(1, 0)
     
     -- State
-    local enabled = props.Default or false
+    local isOn = props.Default or false
     
-    local function UpdateState(animate)
-        if enabled then
-            if animate then
-                Utilities.CreateTween(knob, {Position = UDim2.new(1, -23, 0.5, -10), BackgroundColor3 = Theme.Colors.MainBackground}, 0.2)
-                Utilities.CreateTween(switch, {BackgroundColor3 = Theme.Colors.Accent}, 0.2)
-                stroke.Color = Theme.Colors.Accent
-            else
-                knob.Position = UDim2.new(1, -23, 0.5, -10)
-                knob.BackgroundColor3 = Theme.Colors.MainBackground
-                switch.BackgroundColor3 = Theme.Colors.Accent
-                stroke.Color = Theme.Colors.Accent
-            end
+    local function UpdateState()
+        if isOn then
+            Utilities.CreateTween(switchBg, {BackgroundColor3 = Theme.Colors.Accent}, 0.2)
+            Utilities.CreateTween(circle, {Position = UDim2.new(1, -20, 0.5, 0), BackgroundColor3 = Color3.new(1,1,1)}, 0.2)
+            if props.Callback then props.Callback(true) end
         else
-            if animate then
-                Utilities.CreateTween(knob, {Position = UDim2.new(0, 3, 0.5, -10), BackgroundColor3 = Theme.Colors.TextLow}, 0.2)
-                Utilities.CreateTween(switch, {BackgroundColor3 = Theme.Colors.PanelBackground}, 0.2)
-                stroke.Color = Theme.Colors.TextLow
-            else
-                knob.Position = UDim2.new(0, 3, 0.5, -10)
-                knob.BackgroundColor3 = Theme.Colors.TextLow
-                switch.BackgroundColor3 = Theme.Colors.PanelBackground
-                stroke.Color = Theme.Colors.TextLow
-            end
+            Utilities.CreateTween(switchBg, {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}, 0.2)
+            Utilities.CreateTween(circle, {Position = UDim2.new(0, 2, 0.5, 0), BackgroundColor3 = Theme.Colors.TextMid}, 0.2)
+            if props.Callback then props.Callback(false) end
         end
     end
     
-    switch.MouseButton1Click:Connect(function()
-        enabled = not enabled
-        UpdateState(true)
-        if props.Callback then props.Callback(enabled) end
+    -- Initial State (No Callback trigger)
+    if isOn then
+        switchBg.BackgroundColor3 = Theme.Colors.Accent
+        circle.Position = UDim2.new(1, -20, 0.5, 0)
+        circle.BackgroundColor3 = Color3.new(1,1,1)
+    end
+    
+    container.MouseButton1Click:Connect(function()
+        isOn = not isOn
+        UpdateState()
     end)
     
-    UpdateState(false)
-    
-    return frame
+    return container
 end
 
 return Toggle

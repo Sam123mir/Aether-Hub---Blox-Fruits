@@ -7,122 +7,129 @@ TabSystem.__index = TabSystem
 function TabSystem.new(window)
     local self = setmetatable({}, TabSystem)
     self.Window = window
-    self.Tabs = {}
-    self.ActiveTab = nil
+    self.Tabs = {} -- List of tab helper objects
+    self.CurrentTab = nil
     
-    -- Container for Tab Buttons (Left Side)
+    -- Container for Tab Buttons
     local tabContainer = Instance.new("ScrollingFrame")
-    tabContainer.Name = "TabContainer"
-    tabContainer.Size = UDim2.new(0, 120, 1, -10)
-    tabContainer.Position = UDim2.new(0, 5, 0, 5)
+    tabContainer.Size = UDim2.new(1, 0, 1, -20)
+    tabContainer.Position = UDim2.new(0, 0, 0, 10)
     tabContainer.BackgroundTransparency = 1
-    tabContainer.ScrollBarThickness = 0
-    tabContainer.Parent = window.Instance.Content
+    tabContainer.ScrollBarThickness = 2
+    tabContainer.ScrollBarImageColor3 = Theme.Colors.Accent
+    tabContainer.Parent = window.Sidebar
     
-    local listLayout = Instance.new("UIListLayout")
-    listLayout.Padding = UDim.new(0, 5)
-    listLayout.Parent = tabContainer
+    local layout = Instance.new("UIListLayout", tabContainer)
+    layout.Padding = UDim.new(0, 8)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     
-    self.ButtonContainer = tabContainer
-    
-    -- Container for Tab Content (Right Side)
-    local contentContainer = Instance.new("Frame")
-    contentContainer.Name = "TabContent"
-    contentContainer.Size = UDim2.new(1, -135, 1, -10)
-    contentContainer.Position = UDim2.new(0, 130, 0, 5)
-    contentContainer.BackgroundColor3 = Theme.Colors.PanelBackground
-    contentContainer.BorderSizePixel = 0
-    local uic = Instance.new("UICorner", contentContainer)
-    uic.CornerRadius = Theme.Layout.CornerRadius
-    contentContainer.Parent = window.Instance.Content
-    
-    self.ContentContainer = contentContainer
-    
+    self.Container = tabContainer
     return self
 end
 
 function TabSystem:AddTab(name)
-    -- Tab Button
+    -- 1. Create Button in Sidebar
     local btn = Instance.new("TextButton")
-    btn.Text = name
-    btn.Size = UDim2.new(1, 0, 0, 35)
-    Theme.ApplyStyle(btn, "Panel") -- Default style
-    btn.Font = Theme.Fonts.Main
-    btn.TextColor3 = Theme.Colors.TextMid
-    btn.Parent = self.ButtonContainer
+    btn.Name = name .. "_Btn"
+    btn.Size = UDim2.new(0.9, 0, 0, 40)
+    btn.BackgroundColor3 = Theme.Colors.Main
+    btn.Text = ""
+    btn.AutoButtonColor = false
+    btn.Parent = self.Container
     
-    -- Selection Indicator (Bar on left)
+    local corner = Instance.new("UICorner", btn)
+    corner.CornerRadius = UDim.new(0, 6)
+    
+    local label = Instance.new("TextLabel")
+    label.Text = name
+    label.Font = Theme.Fonts.Medium
+    label.TextSize = 14
+    label.TextColor3 = Theme.Colors.TextMid
+    label.BackgroundTransparency = 1
+    label.Size = UDim2.new(1, -20, 1, 0)
+    label.Position = UDim2.new(0, 15, 0, 0) -- Indent
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = btn
+    
+    -- Selection Indicator (Green Bar on left)
     local indicator = Instance.new("Frame")
-    indicator.Size = UDim2.new(0, 3, 1, 0)
+    indicator.Size = UDim2.new(0, 3, 0.6, 0)
+    indicator.Position = UDim2.new(0, 0, 0.2, 0)
     indicator.BackgroundColor3 = Theme.Colors.Accent
-    indicator.BackgroundTransparency = 1 -- Hidden by default
     indicator.BorderSizePixel = 0
+    indicator.Visible = false -- Hidden by default
     indicator.Parent = btn
     
-    -- Content Frame
+    local indCorner = Instance.new("UICorner", indicator)
+    indCorner.CornerRadius = UDim.new(0, 4)
+    
+    -- 2. Create Content Page in Content Area
     local page = Instance.new("ScrollingFrame")
     page.Name = name .. "_Page"
-    page.Size = UDim2.new(1, -10, 1, -10)
-    page.Position = UDim2.new(0, 5, 0, 5)
+    page.Size = UDim2.new(1, -4, 1, -4) -- Padding
+    page.Position = UDim2.new(0, 2, 0, 2)
     page.BackgroundTransparency = 1
     page.ScrollBarThickness = 2
     page.ScrollBarImageColor3 = Theme.Colors.Accent
     page.Visible = false
-    page.Parent = self.ContentContainer
+    page.Parent = self.Window.Content
     
-    -- Helper for layout
-    local layout = Instance.new("UIListLayout")
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Padding = UDim.new(0, 5)
-    layout.Parent = page
+    local pageLayout = Instance.new("UIListLayout", page)
+    pageLayout.Padding = UDim.new(0, 10)
+    pageLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    
+    local pagePad = Instance.new("UIPadding", page)
+    pagePad.PaddingTop = UDim.new(0, 10)
+    pagePad.PaddingBottom = UDim.new(0, 10)
     
     local tabData = {
         Button = btn,
+        Label = label,
         Indicator = indicator,
-        Page = page,
-        Name = name
+        Page = page
     }
     
+    -- Click Event
     btn.MouseButton1Click:Connect(function()
-        self:SelectTab(name)
+        self:SelectTab(tabData)
     end)
     
-    self.Tabs[name] = tabData
+    -- Hover Animation
+    btn.MouseEnter:Connect(function()
+        if self.CurrentTab ~= tabData then
+            Utilities.CreateTween(btn, {BackgroundColor3 = Color3.fromRGB(30,30,30)}, 0.2)
+        end
+    end)
+    btn.MouseLeave:Connect(function()
+        if self.CurrentTab ~= tabData then
+            Utilities.CreateTween(btn, {BackgroundColor3 = Theme.Colors.Main}, 0.2)
+        end
+    end)
     
-    -- Select first tab by default
-    if not self.ActiveTab then
-        self:SelectTab(name)
+    -- Select first tab automatically
+    if not self.CurrentTab then
+        self:SelectTab(tabData)
     end
     
-    return page -- Return page so modules can add items to it
+    return page -- Return page for adding elements
 end
 
-function TabSystem:SelectTab(name)
-    if self.ActiveTab == name then return end
-    
-    -- Deactivate current
-    if self.ActiveTab and self.Tabs[self.ActiveTab] then
-        local old = self.Tabs[self.ActiveTab]
-        Utilities.CreateTween(old.Button, {BackgroundColor3 = Theme.Colors.PanelBackground}, 0.2)
-        Utilities.CreateTween(old.Button, {TextColor3 = Theme.Colors.TextMid}, 0.2)
-        Utilities.CreateTween(old.Indicator, {BackgroundTransparency = 1}, 0.2)
-        old.Page.Visible = false
+function TabSystem:SelectTab(tabData)
+    -- Deselect current
+    if self.CurrentTab then
+        Utilities.CreateTween(self.CurrentTab.Button, {BackgroundColor3 = Theme.Colors.Main}, 0.2)
+        Utilities.CreateTween(self.CurrentTab.Label, {TextColor3 = Theme.Colors.TextMid}, 0.2)
+        self.CurrentTab.Indicator.Visible = false
+        self.CurrentTab.Page.Visible = false
     end
     
-    -- Activate new
-    local new = self.Tabs[name]
-    self.ActiveTab = name
-    
-    -- Animate Button (Glow effect logic could go here)
-    Utilities.CreateTween(new.Button, {BackgroundColor3 = Color3.fromRGB(25, 35, 25)}, 0.2) -- Slightly lighter
-    Utilities.CreateTween(new.Button, {TextColor3 = Theme.Colors.Accent}, 0.2)
-    Utilities.CreateTween(new.Indicator, {BackgroundTransparency = 0}, 0.2)
-    
-    -- Show Page with fade
-    new.Page.CanvasPosition = Vector2.new(0,0)
-    new.Page.Visible = true
-    new.Page.BackgroundTransparency = 1
-    -- Utilities.CreateTween(new.Page, {BackgroundTransparency = 1}, 0.5) -- Just fade in content if needed
+    -- Select new
+    self.CurrentTab = tabData
+    Utilities.CreateTween(tabData.Button, {BackgroundColor3 = Color3.fromRGB(35, 35, 35)}, 0.2)
+    Utilities.CreateTween(tabData.Label, {TextColor3 = Theme.Colors.Accent}, 0.2)
+    tabData.Indicator.Visible = true
+    tabData.Page.Visible = true
 end
 
 return TabSystem

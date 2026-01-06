@@ -1,6 +1,6 @@
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 local Theme = AetherRequire("lua.ui.Theme")
 local Utilities = AetherRequire("lua.Utilities")
 
@@ -12,104 +12,183 @@ function Window.new(title)
     
     local gui = AetherRequire("lua.ui.UIManager").Gui
     
-    -- Main Frame
-    local frame = Instance.new("Frame")
-    frame.Name = "WindowFrame"
-    frame.Size = UDim2.new(0, 550, 0, 350)
-    frame.Position = UDim2.new(0.5, -275, 0.5, -175)
-    Theme.ApplyStyle(frame, "Window")
-    frame.ClipsDescendants = true
-    frame.Parent = gui
+    -- :: MAIN CONTAINER (Invisible, holds everything) ::
+    local mainContainer = Instance.new("Frame")
+    mainContainer.Name = "AetherWindow"
+    mainContainer.Size = UDim2.new(0, 700, 0, 450) -- Larger size
+    mainContainer.Position = UDim2.new(0.5, -350, 0.5, -225)
+    mainContainer.BackgroundTransparency = 1
+    mainContainer.Parent = gui
+    self.Instance = mainContainer
     
-    -- Outline (Matrix Green Glow)
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Theme.Colors.Accent
-    stroke.Thickness = 1
-    stroke.Transparency = 0.5
-    stroke.Parent = frame
+    -- :: HEADER BAR (Title + Profile) ::
+    local header = Instance.new("Frame")
+    header.Name = "Header"
+    header.Size = UDim2.new(1, 0, 0, 50)
+    header.Position = UDim2.new(0, 0, 0, 0)
+    header.BackgroundColor3 = Theme.Colors.Main
+    header.BorderSizePixel = 0
+    header.Parent = mainContainer
     
-    -- Title Bar
-    local titleBar = Instance.new("Frame")
-    titleBar.Size = UDim2.new(1, 0, 0, Theme.Layout.HeaderHeight)
-    titleBar.BackgroundTransparency = 1
-    titleBar.Parent = frame
+    local headerCorner = Instance.new("UICorner", header)
+    headerCorner.CornerRadius = Theme.CornerRadius
     
+    -- Header Gradient/Stroke
+    local headerStroke = Instance.new("UIStroke", header)
+    headerStroke.Transparency = 0.8
+    headerStroke.Thickness = 1
+    headerStroke.Color = Theme.Colors.Accent
+    
+    -- Title Text (Left)
     local titleLabel = Instance.new("TextLabel")
-    titleLabel.Text = title .. " <font color=\"rgb(0,255,65)\">BETA</font>"
+    titleLabel.Text = title .. " <font color=\"rgb(0,255,65)\">BETA</font>" -- Rich Text
     titleLabel.RichText = true
-    titleLabel.Size = UDim2.new(1, -20, 1, 0)
-    titleLabel.Position = UDim2.new(0, 15, 0, 0)
-    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    Theme.ApplyStyle(titleLabel, "Text")
     titleLabel.Font = Theme.Fonts.Bold
-    titleLabel.TextSize = 16
-    titleLabel.Parent = titleBar
+    titleLabel.TextSize = 20
+    titleLabel.TextColor3 = Theme.Colors.TextHigh
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    titleLabel.Position = UDim2.new(0, 20, 0, 0)
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = header
     
-    -- Content Container
-    local content = Instance.new("Frame")
-    content.Name = "Content"
-    content.Size = UDim2.new(1, 0, 1, -Theme.Layout.HeaderHeight)
-    content.Position = UDim2.new(0, 0, 0, Theme.Layout.HeaderHeight)
-    content.BackgroundTransparency = 1
-    content.Parent = frame
+    -- User Profile (Right)
+    local player = Players.LocalPlayer
     
-    -- Minimize Button
+    local profileFrame = Instance.new("Frame")
+    profileFrame.Size = UDim2.new(0, 180, 0, 40)
+    profileFrame.AnchorPoint = Vector2.new(1, 0.5)
+    profileFrame.Position = UDim2.new(1, -10, 0.5, 0)
+    profileFrame.BackgroundTransparency = 1
+    profileFrame.Parent = header
+    
+    -- Avatar Image
+    local avatar = Instance.new("ImageLabel")
+    avatar.Size = UDim2.new(0, 32, 0, 32)
+    avatar.Position = UDim2.new(0, 0, 0.5, -16)
+    avatar.BackgroundColor3 = Theme.Colors.Section
+    avatar.Image = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+    avatar.Parent = profileFrame
+    
+    local avatarCorner = Instance.new("UICorner", avatar)
+    avatarCorner.CornerRadius = UDim.new(1, 0) -- Circle
+    
+    local avatarStroke = Instance.new("UIStroke", avatar)
+    avatarStroke.Color = Theme.Colors.Accent
+    avatarStroke.Thickness = 1
+    
+    -- Username & DisplayName
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Text = player.DisplayName
+    nameLabel.Font = Theme.Fonts.Bold
+    nameLabel.TextSize = 14
+    nameLabel.TextColor3 = Theme.Colors.TextHigh
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Size = UDim2.new(0, 130, 0, 16)
+    nameLabel.Position = UDim2.new(0, 42, 0, 0)
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.Parent = profileFrame
+    
+    local userLabel = Instance.new("TextLabel")
+    userLabel.Text = "@" .. player.Name
+    userLabel.Font = Theme.Fonts.Regular
+    userLabel.TextSize = 11
+    userLabel.TextColor3 = Theme.Colors.TextDark
+    userLabel.BackgroundTransparency = 1
+    userLabel.Size = UDim2.new(0, 130, 0, 14)
+    userLabel.Position = UDim2.new(0, 42, 0, 16)
+    userLabel.TextXAlignment = Enum.TextXAlignment.Left
+    userLabel.Parent = profileFrame
+
+    -- :: MINIMIZE BUTTON ::
     local minBtn = Instance.new("TextButton")
     minBtn.Text = "-"
+    minBtn.Font = Theme.Fonts.Bold
+    minBtn.TextSize = 24
+    minBtn.TextColor3 = Theme.Colors.TextMid
+    minBtn.BackgroundTransparency = 1
     minBtn.Size = UDim2.new(0, 30, 0, 30)
-    minBtn.Position = UDim2.new(1, -35, 0, 5)
-    Theme.ApplyStyle(minBtn, "Text")
-    minBtn.Parent = titleBar
+    minBtn.Position = UDim2.new(1, -220, 0.5, -15) -- To the left of profile
+    minBtn.Parent = header
     
-    -- Drag Logic
-    local dragging, dragInput, dragStart, startPos
-    titleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-        end
-    end)
-    
-    titleBar.InputEnded:Connect(function(input)
-         if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-    
-    RunService.RenderStepped:Connect(function()
-        if dragging and dragInput then
-            local delta = dragInput.Position - dragStart
-            local targetPos = UDim2.new(
-                startPos.X.Scale, startPos.X.Offset + delta.X,
-                startPos.Y.Scale, startPos.Y.Offset + delta.Y
-            )
-            Utilities.CreateTween(frame, {Position = targetPos}, 0.05)
-        end
-    end)
-    
-    -- Minimize Logic
     minBtn.MouseButton1Click:Connect(function()
         self:Minimize()
     end)
 
-    self.Instance = frame
+    -- :: CONTENT LAYOUT ::
+    -- Sidebar (Tabs)
+    local sidebar = Instance.new("Frame")
+    sidebar.Name = "Sidebar"
+    sidebar.Size = UDim2.new(0, 180, 1, -60) -- 50px header + 10px Gap
+    sidebar.Position = UDim2.new(0, 0, 0, 60)
+    Theme.ApplyStyle(sidebar, "FloatingContainer")
+    sidebar.Parent = mainContainer
+    self.Sidebar = sidebar
+    
+    -- Content Area
+    local content = Instance.new("Frame")
+    content.Name = "Content"
+    content.Size = UDim2.new(1, -190, 1, -60) -- Remaining width minus gap
+    content.Position = UDim2.new(0, 190, 0, 60)
+    Theme.ApplyStyle(content, "FloatingContainer")
+    content.Parent = mainContainer
+    self.Content = content
+    
+    -- Dragging Logic
+    self:MakeDraggable(header)
+    
     return self
+end
+
+function Window:MakeDraggable(dragHandle)
+    local dragging, dragInput, dragStart, startPos
+    
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = self.Instance.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    dragHandle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            local newPos = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+            Utilities.CreateTween(self.Instance, {Position = newPos}, 0.1)
+        end
+    end)
 end
 
 function Window:Show()
     self.Instance.Visible = true
-    self.Instance.Size = UDim2.new(0, 550, 0, 0)
-    Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 550, 0, 350)}, 0.5, Enum.EasingStyle.Back)
+    -- Intro Animation
+    self.Instance.Size = UDim2.new(0, 0, 0, 0)
+    self.Instance.BackgroundTransparency = 1
+    
+    Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 700, 0, 450), BackgroundTransparency = 1}, 0.5, Enum.EasingStyle.Back)
+    -- We keep MainContainer transparent, children have color
 end
 
 function Window:Minimize()
     local FloatingIcon = AetherRequire("lua.ui.FloatingIcon")
-    Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 550, 0, 0)}, 0.3).Completed:Connect(function()
+    -- Shrink animation
+    Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 0, 0, 0)}, 0.4, Enum.EasingStyle.Quart).Completed:Connect(function()
         self.Instance.Visible = false
         FloatingIcon:Show()
     end)
@@ -117,7 +196,7 @@ end
 
 function Window:Restore()
     self.Instance.Visible = true
-    Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 550, 0, 350)}, 0.3)
+    Utilities.CreateTween(self.Instance, {Size = UDim2.new(0, 700, 0, 450)}, 0.4, Enum.EasingStyle.Back)
 end
 
 return Window
